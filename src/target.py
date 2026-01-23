@@ -4,9 +4,11 @@ import pandas as pd
 def build_direction(df:pd.DataFrame)->pd.DataFrame:
    df=df.copy()
     
-   df["close_tomorrow"]=df["Close"].shift(-1)
-   df["direction"]=(df["close_tomorrow"]>df["Close"]).astype(int)
-   df=df.dropna(subset=["direction"])#closing price is dropeed to prevent data leakage
+   df["direction"]=(df["Close"].shift(-1)>df["Close"]).astype(int)
+   df=df.dropna()
    df=df.iloc[:-1]
-   df.drop(columns=["close_tomorrow"],inplace=True)
+   
+   print(df.columns)
+   print(df["direction"].value_counts())
+
    return df
