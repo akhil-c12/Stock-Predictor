@@ -1,0 +1,16 @@
+Summary of Changes:
+
+1.  Centralized Configuration: Created a `config.py` file to store all parameters, such as data paths, feature parameters, model hyperparameters, and split ratios. This makes the project more flexible and easier to configure.
+2.  Added Dependencies: Populated the `requirements.txt` file with the project's dependencies (`pandas`, `numpy`, `yfinance`, `scikit-learn`, `flake8`, `black`).
+3.  Refactored `src` modules:
+    *   `src/target.py`: Fixed a bug that was causing the last row of data to be dropped.
+    *   `src/data_fetcher.py`: Parameterized the data directory to be easily configurable.
+    *   `src/features.py`: Parameterized the feature engineering steps to make them data-driven and easily tunable.
+    *   `src/split.py`: Parameterized the data split ratios and the target column name.
+    *   `src/train.py`: Parameterized the model training to allow for easier experimentation and tuning.
+4.  Created an Entry Point: Implemented `main.py` to run the end-to-end pipeline, from data fetching to model evaluation.
+5.  Improved Testing:
+    *   Removed the old, redundant test scripts.
+    *   Created a new test suite (`tests/test_pipeline.py`) to test the data processing pipeline.
+    *   Configured the project to be testable with `pytest`.
+6.  Code Formatting: Formatted the code using `black` for consistency.

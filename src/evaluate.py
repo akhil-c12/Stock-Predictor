@@ -1,4 +1,10 @@
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+)
+
+
 
 def evaluate(model, X_test, y_test, threshold=0.5, show_cm=True):
     proba = model.predict_proba(X_test)[:, 1]
