@@ -6,7 +6,7 @@ REQUIRED_COLUMNS = ["Open", "High", "Low", "Close", "Volume"]
 # checks wether the dataframe is valid or not
 def validate_ohlcv(df: pd.DataFrame) -> pd.DataFrame:
     if not isinstance(df.index, pd.DatetimeIndex):
-        raise TypeError("DataFrame index must be a DataTimeIndex")
+        raise TypeError("DataFrame index must be a DateTimeIndex")
     df = df.sort_index()
     df = df[~df.index.duplicated(keep="first")]
 
