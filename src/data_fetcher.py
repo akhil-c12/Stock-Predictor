@@ -31,7 +31,7 @@ def fetch_stock_data(
         df.index = df.index.tz_localize(None)
         return df
 
-        df = yf.download(
+    df = yf.download(
             ticker,
             start=start,
             end=end,

@@ -14,11 +14,6 @@ def compute_rsi(series: pd.Series, period: int = 14) -> pd.Series:
     rsi = 100 - (100 / (1 + rs))
     return rsi
 
-
-import pandas as pd
-import numpy as np
-
-
 def get_xgb_features(df: pd.DataFrame) -> pd.DataFrame:
     """
     Final, minimal, XGBoost-optimized feature set.
@@ -39,18 +34,10 @@ def get_xgb_features(df: pd.DataFrame) -> pd.DataFrame:
     ema_20 = df["Close"].ewm(span=20, adjust=False).mean()
     df["dist_ema_20"] = (df["Close"] / ema_20) - 1
 
-    # - MOMENTUM (Wilder's RSI)
-    delta = df["Close"].diff()
-    gain = delta.clip(lower=0)
-    loss = -delta.clip(upper=0)
+    # MOMENTUM
+    df["rsi_14"] = compute_rsi(df["Close"], period=14) / 100.0
+    df["rsi_14_lag1"] = df["rsi_14"].shift(1)
 
-    # Wilder's Smoothing (alpha = 1/N)
-    avg_gain = gain.ewm(alpha=1/14, adjust=False, min_periods=14).mean()
-    avg_loss = loss.ewm(alpha=1/14, adjust=False, min_periods=14).mean()
-
-    rs = avg_gain / avg_loss
-    df["rsi_14"] = (100 - (100 / (1 + rs))) / 100.0  # Scale 0-1
-    df["rsi_14_lag1"] = df["rsi_14"].shift(1)        # Slope detection
 
     # VOLATILITY
     high_low = df["High"] - df["Low"]
