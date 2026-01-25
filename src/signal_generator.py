@@ -89,7 +89,8 @@ def compute_signal(df: pd.DataFrame) -> pd.DataFrame:
         else:
             direction = None  # neutral
 
-        confidence = min(abs(bullish_score - bearish_score), 1.0)
+        total_weight = bullish_score + bearish_score
+        confidence = abs(bullish_score - bearish_score) / max(total_weight, 1e-6)
 
         directions.append(direction)
         confidences.append(confidence)
