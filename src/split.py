@@ -1,6 +1,6 @@
 import pandas as pd
 
-def time_split_3way(df, target_col="direction", train_size=0.70, val_size=0.15):
+def time_split_3way(df, target_col="target", train_size=0.70, val_size=0.15):
 
     df = df.copy()
     df = df.sort_index()

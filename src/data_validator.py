@@ -21,4 +21,6 @@ def validate_ohlcv(df: pd.DataFrame) -> pd.DataFrame:
     if df.isna().any().any():
         raise ValueError("NaNs still present after validation")
 
+    df.columns = df.columns.str.lower()
+
     return df
