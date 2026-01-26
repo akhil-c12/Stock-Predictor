@@ -7,11 +7,12 @@ from src.evaluate import evaluate
 from src.backtest import backtest_trader_mode, optimize_trader_mode
 from src.plotting import plot_equity_drawdown
 import numpy as np
+import sys
 
 
-def main():
+def main(ticker="AAPL"):
     # ---------- DATA ----------
-    df_ohlcv = fetch_stock_data("AAPL", "2020-01-01", "2026-01-01")
+    df_ohlcv = fetch_stock_data(ticker, "2020-01-01", "2026-01-01")
     df_ohlcv = validate_ohlcv(df_ohlcv)
     df = get_xgb_features(df_ohlcv)
     df = df.dropna()
@@ -88,6 +89,44 @@ def main():
     evaluate(model, X_test, y_test, threshold=0.5)
     plot_equity_drawdown(final_df)
 
+    # ---------- TOMORROW PREDICTION ----------
+    print("\n" + "="*50)
+    print("🔮 TOMORROW PREDICTION")
+    print("="*50)
+    
+    # Get latest data for prediction
+    latest_features = df.iloc[-1:].drop(columns=['target'])
+    latest_features_scaled = model.scaler.transform(latest_features)
+    tomorrow_proba = model.predict_proba(latest_features_scaled)[0, 1]
+    
+    # Calculate expected move and range from recent volatility
+    recent_returns = df_ohlcv['close'].pct_change().tail(20)
+    avg_return = recent_returns.mean()
+    volatility = recent_returns.std()
+    
+    # Generate prediction metrics
+    direction = "UP" if tomorrow_proba >= 0.5 else "DOWN"
+    confidence_pct = int(tomorrow_proba * 100) if tomorrow_proba >= 0.5 else int((1 - tomorrow_proba) * 100)
+    expected_move = avg_return * 100
+    range_low = (avg_return - volatility) * 100
+    range_high = (avg_return + volatility) * 100
+    
+    # Confidence level
+    if confidence_pct >= 70:
+        confidence_level = "High"
+    elif confidence_pct >= 60:
+        confidence_level = "Medium"
+    else:
+        confidence_level = "Low"
+    
+    print(f"\nTicker: {ticker}")
+    print(f"Direction: {direction} ({confidence_pct}%)")
+    print(f"Expected Move: {expected_move:+.1f}%")
+    print(f"Range: {range_low:+.1f}% to {range_high:+.1f}%")
+    print(f"Confidence: {confidence_level}")
+    print("="*50)
+
 
 if __name__ == "__main__":
-    main()
+    ticker = sys.argv[1].upper() if len(sys.argv) > 1 else "AAPL"
+    main(ticker)
