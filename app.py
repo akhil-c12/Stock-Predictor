@@ -265,6 +265,49 @@ if run_button:
         plt.tight_layout()
         st.pyplot(fig)
         
+        # ---------- TOMORROW PREDICTION ----------
+        st.markdown("---")
+        st.subheader("🔮 Tomorrow Prediction")
+        
+        # Get latest data for prediction
+        latest_features = df.iloc[-1:].drop(columns=['target'])
+        latest_features_scaled = model.scaler.transform(latest_features)
+        tomorrow_proba = model.predict_proba(latest_features_scaled)[0, 1]
+        
+        # Calculate expected move and range from recent volatility
+        recent_returns = df_ohlcv['close'].pct_change().tail(20)
+        avg_return = recent_returns.mean()
+        volatility = recent_returns.std()
+        
+        # Generate prediction metrics
+        direction = "UP" if tomorrow_proba >= 0.5 else "DOWN"
+        confidence_pct = int(tomorrow_proba * 100) if tomorrow_proba >= 0.5 else int((1 - tomorrow_proba) * 100)
+        expected_move = avg_return * 100
+        range_low = (avg_return - volatility) * 100
+        range_high = (avg_return + volatility) * 100
+        
+        # Confidence level
+        if confidence_pct >= 70:
+            confidence_level = "High"
+        elif confidence_pct >= 60:
+            confidence_level = "Medium"
+        else:
+            confidence_level = "Low"
+        
+        # Display prediction
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("Direction", f"{direction}")
+        with col2:
+            st.metric("Confidence", f"{confidence_pct}%")
+        with col3:
+            st.metric("Expected Move", f"{expected_move:+.1f}%")
+        with col4:
+            st.metric("Confidence Level", confidence_level)
+        
+        # Range display
+        st.info(f"**Predicted Range:** {range_low:+.1f}% to {range_high:+.1f}%")
+        
         progress_bar.progress(100)
         status_text.text("✅ Analysis complete!")
         
